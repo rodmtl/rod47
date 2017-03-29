@@ -168,9 +168,9 @@ namespace Rod47.Models
         public static void InitializeIdentityForEF(ApplicationDbContext db) {
             var userManager = HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>();
             var roleManager = HttpContext.Current.GetOwinContext().Get<ApplicationRoleManager>();
-            const string name = "admin@example.com";
-            const string password = "Admin@123456";
-            const string roleName = "Admin";
+            string name = ConfigurationManager.AppSettings["admin_name"]; 
+            string password = ConfigurationManager.AppSettings["admin_pwd"];
+            string roleName = ConfigurationManager.AppSettings["admin_role"];
 
             //Create Role Admin if it does not exist
             var role = roleManager.FindByName(roleName);
@@ -183,7 +183,9 @@ namespace Rod47.Models
             if (user == null) {
                 user = new ApplicationUser { UserName = name, Email = name };
                 var result = userManager.Create(user, password);
-                result = userManager.SetLockoutEnabled(user.Id, false);
+                if (result.Succeeded)
+                    result = userManager.SetLockoutEnabled(user.Id, false);
+                
             }
 
             // Add user admin to Role Admin if not already added
